@@ -20,6 +20,7 @@ def picture():
         "event_country": "United States",
         "event_state": "California",
         "event_city": "Fremont",
-        "event_date": "11/2/2030"
+        "event_date": "11/2/2030",
     }
+
     return dict(picture)
