@@ -1,11 +1,14 @@
-from . import app
+from . import app, db
 import os
 import json
 from flask import jsonify, request, make_response, abort, url_for  # noqa; F401
+from bson import json_util
 
 SITE_ROOT = os.path.realpath(os.path.dirname(__file__))
 json_url = os.path.join(SITE_ROOT, "data", "pictures.json")
 data: list = json.load(open(json_url))
+
+client = db.init_db()
 
 ######################################################################
 # RETURN HEALTH OF THE APP
@@ -102,3 +105,20 @@ def delete_picture(id):
             return "", 204
 
     return {"message": "picture not found"}, 404
+
+
+# Connecting to MongoDB from Flask
+@app.route("/todos")
+def index():
+    result = client.tododb.todo.find({})
+    return json_util.dumps(list(result)), 200
+
+
+@app.route("/todos/<priority>")
+def get_by_priority_better(priority):
+    result = client.tododb.todo.find({"priority": priority})
+    result_list = list(result)
+    if not result or len(result_list) < 1:
+        return json_util.dumps(result_list), 404
+
+    return json_util.dumps(result_list), 200
